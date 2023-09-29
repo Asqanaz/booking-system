@@ -14,7 +14,7 @@ const serviceSlice = createSlice({
       const body = {
         id: new Date().toISOString(),
         ...payload,
-        professionalsIds: []
+        professionalsIds: payload.professionalsIds?.map(p => p.value) || []
       }
 
       if(!state.find(s => s.name === payload.name)) {
@@ -22,19 +22,17 @@ const serviceSlice = createSlice({
         localStorage.setItem(SERVICES, JSON.stringify(state))
 
       }
-
-
       return state
     },
     editService(state, action) {
       const { payload } = action
 
       const newState = state.map(s =>
-        s.id === payload.id ? { ...s, ...payload } : { ...s }
+        s.id === payload.id ? { ...s, ...payload, professionalsIds: payload.professionalsIds.map(p => p.value) } : { ...s }
       )
       localStorage.setItem(SERVICES, JSON.stringify(newState))
 
-      return state
+      return newState
     },
     deleteService(state, action) {
       const { payload } = action

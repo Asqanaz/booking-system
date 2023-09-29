@@ -1,6 +1,5 @@
 import AdminPage from "../pages/AdminPage"
 
-
 export const ADMIN_ROUTES = [
     {
         path: 'services',

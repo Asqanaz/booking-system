@@ -1,15 +1,15 @@
 import React from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { fieldTypes } from "../../utils/fields"
-import { useForm } from "react-hook-form"
-import { Input } from "../../ui/Input"
-import Button from "../../ui/Button"
-import Select from "../../ui/Select"
-import { getItem } from "../../utils/getItem"
-import { AVAILABLE_HOURS, PROFESSIONALS, SERVICES } from "../../utils/constants"
-import { editProfessional } from "../../store/slices/professionalSlice"
+import { fieldTypes } from "../utils/fields"
+import { Controller, useForm } from "react-hook-form"
+import { Input } from "../ui/Input"
+import Button from "../ui/Button"
+import Select from "../ui/Select"
+import { AVAILABLE_HOURS, PROFESSIONALS, SERVICES } from "../utils/constants"
+import { editProfessional } from "../store/slices/professionalSlice"
 import { useDispatch, useSelector } from "react-redux"
-import { editService } from "../../store/slices/serviceSlice"
+import { editService } from "../store/slices/serviceSlice"
+import MultiSelect from "../ui/MultiSelect"
 
 export default function ViewDetails() {
   const { category, id } = useParams()
@@ -24,13 +24,26 @@ export default function ViewDetails() {
 
   const dispatch = useDispatch()
 
-  const services = getItem("services")
-  const professionals = getItem("professionals")
+  const services = useSelector(state => state.services)
+  const professionals = useSelector(state => state.professionals)
+
+  const professionalsOptions = professionals.map(prof => ({
+    value: prof.id,
+    label: prof.name
+  }))
+
+  const defaultProfessionalsValues = data.professionalsIds
+    ?.map(id => professionals.find(prof => prof.id === id))
+    ?.map(prof => ({
+      value: prof.id,
+      label: prof.name
+    }))
 
   const {
     formState: { errors },
     handleSubmit,
-    register
+    register,
+    control
   } = useForm({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
@@ -41,7 +54,7 @@ export default function ViewDetails() {
             professional: data.professional,
             start: data.start
           }
-        : data
+        : { ...data, professionalsIds: defaultProfessionalsValues }
   })
 
   const onSubmit = body => {
@@ -52,11 +65,10 @@ export default function ViewDetails() {
     if (category === PROFESSIONALS) {
       dispatch(editProfessional({ id, ...body }))
     }
-
   }
 
   return (
-    <div className="py-20">
+    <div className="py-20 max-w-xl">
       <form
         className="flex flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
@@ -65,6 +77,7 @@ export default function ViewDetails() {
           if (value === "select") {
             return (
               <Select
+                key={key}
                 label={key[0].toUpperCase() + key.slice(1)}
                 id={key}
                 register={register}
@@ -78,8 +91,29 @@ export default function ViewDetails() {
               />
             )
           }
+
+          if (value === "multi-select") {
+            return (
+              <Controller
+                name={key}
+                key={key}
+                control={control}
+                render={({ field: { onChange, value, ref } }) => {
+                  return (
+                    <MultiSelect
+                      label={"Professionals"}
+                      options={professionalsOptions}
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )
+                }}
+              />
+            )
+          }
           return (
             <Input
+              key={key}
               id={key}
               register={register}
               label={key[0].toUpperCase() + key.slice(1)}
@@ -96,7 +130,6 @@ export default function ViewDetails() {
                   message: "Max duration is 90 minutes"
                 }
               }}
-              key={key}
               errors={errors}
             />
           )

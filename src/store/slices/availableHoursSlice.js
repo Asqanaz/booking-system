@@ -44,8 +44,7 @@ const availableHoursSlice = createSlice({
             ? {
                 ...service,
                 professionalsIds: [
-                  ...service.professionalsIds,
-                  currentProfessional
+                  ...new Set([...service.professionalsIds, currentProfessional])
                 ]
               }
             : { ...service }
@@ -79,9 +78,7 @@ const availableHoursSlice = createSlice({
       const professionals = getItem(PROFESSIONALS)
       const updatedAvailableHoursIds = professionals.map(prof => ({
         ...prof,
-        availableHoursIds: prof.availableHoursIds.filter(
-          av => av !== payload
-        )
+        availableHoursIds: prof.availableHoursIds.filter(av => av !== payload)
       }))
 
       localStorage.setItem(
@@ -91,7 +88,7 @@ const availableHoursSlice = createSlice({
 
       return filteredState
     }
-  },
+  }
 })
 
 export const { createAvailableHour, deleteAvailableHour } =

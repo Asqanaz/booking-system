@@ -4,15 +4,16 @@ export const fieldTypes = {
     services: {
         name: 'text',
         price: 'number',
-        duration: 'number'
+        duration: 'number',
+        professionalsIds: 'multi-select'
     },
     professionals: {
         name: 'text',
         surname: 'text'
     },
     'available-hours': {
-        professional: 'select',
         service: 'select',
+        professional: 'select',
         start: 'time'
     }
 }

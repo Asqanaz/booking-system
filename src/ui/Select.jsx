@@ -22,7 +22,7 @@ export default function Select({
       <div className="mt-2">
         <select
           id={id}
-          disabled = {disabled}
+          disabled={disabled}
           autoComplete={id}
           {...register(id, validationSchema)}
           className={clsx(
@@ -32,13 +32,14 @@ export default function Select({
           )}
         >
           <option
+            value="none"
             selected
             disabled
           >
             {placeholder}
           </option>
-          {data.length ? (
-            data.map(d => <option value={d.id}>{d.name}</option>)
+          {data?.length ? (
+            data.map(d => <option value={d.id} key = {d.id}>{d.name}</option>)
           ) : (
             <option disabled>No available {id}</option>
           )}

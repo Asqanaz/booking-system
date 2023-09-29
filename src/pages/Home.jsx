@@ -1,50 +1,66 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { useMultistepForm } from "../hooks/useMultiStepForm"
 import Select from "../ui/Select"
-import { getItem } from "../utils/getItem"
+import Radio from "../ui/Radio"
+import Button from "../ui/Button"
+import { deleteAvailableHour } from "../store/slices/availableHoursSlice"
+import { useDispatch, useSelector } from "react-redux"
 
 export default function Home() {
   const {
     register,
     formState: { errors },
     handleSubmit,
-    watch
+    watch,
+    setValue,
+    reset
   } = useForm({})
 
-  const { step } = useMultistepForm([])
+  const dispatch = useDispatch()
 
-  const services = getItem("services")
-  const professionals = getItem("professionals")
-  const availableHours = getItem("available-hours")
+  const [availableProfessionals, setAvailableProfessionals] = useState([])
+  const [availableProfessionalsHours, setAvailableProfessionalsHours] =
+    useState([])
+
+  const services = useSelector(state => state.services)
+  const professionals = useSelector(state => state.professionals)
+  const availableHours = useSelector(state => state["available-hours"])
 
   const service = watch("service")
   const professional = watch("professional")
 
-//   const availableProfessionals = Array.from(new Set(availableHours
-//     .filter(av => av.service.id === service)
-//     .map(av => av.professional.id)))
+  useEffect(() => {
+    setAvailableProfessionals(
+      services
+        .find(serv => serv.id === service)
+        ?.professionalsIds?.map(id =>
+          professionals.find(prof => prof.id === id)
+        )
+    )
 
-const filteredByService = availableHours.filter(av => av.service.id === service)
-const availableProfessionals = Array.from(new Set(filteredByService.map(av => av.professional.id))).map(id => {
-    return filteredByService.find(s => s.id === id)
-})
-    console.log(availableProfessionals)
+    setAvailableProfessionalsHours(
+      professionals
+        .find(prof => prof.id === professional)
+        ?.availableHoursIds?.map(id => availableHours.find(av => av.id === id))
+    )
+  }, [service, professional])
 
-//   const 
-
-  console.log(filteredByService)
-
-  //   console.log(availableHours.filter(av => av.service.id === service))
+  useEffect(() => {
+    setValue("professional", "none")
+  }, [service])
 
   const onSubmit = data => {
+    console.log(data)
 
+    dispatch(deleteAvailableHour(data.start))
+
+    reset()
   }
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="max-w-2xl w-1/3 h-96 p-5 bg-neutral-200 border rounded-xl"
+        className="max-w-2xl w-1/3 h-96 p-5 bg-neutral-200 border rounded-xl relative"
       >
         <h1 className="text-2xl text-center font-bold my-4">Booking System</h1>
         <div className="flex flex-col gap-y-3">
@@ -58,9 +74,7 @@ const availableProfessionals = Array.from(new Set(filteredByService.map(av => av
             validationSchema={{ required: true }}
           />
           <Select
-            data={availableHours
-              .filter(av => av.service.id === service)
-              .map(av => av.professional)}
+            data={availableProfessionals}
             register={register}
             errors={errors}
             placeholder={"Choose your professional"}
@@ -70,19 +84,24 @@ const availableProfessionals = Array.from(new Set(filteredByService.map(av => av
           />
           <div className="block text-sm font-medium leading-6 text-gray-900">
             <span>Available Hours</span>
-            <div className="mt-2">
-              {availableHours
-                .filter(
-                  av =>
-                    av.service.id === service &&
-                    av.professional.id === professional
-                )
-                .map(hours => (
-                  <div className="py-2 px-2 w-fit bg-neutral-100">
-                    {hours.start}
-                  </div>
-                ))}
+            <div className="mt-2 flex gap-3">
+              {availableProfessionalsHours?.map(hours => (
+                <Radio
+                  key={hours.id}
+                  label={hours.start}
+                  value={hours.id}
+                  register={register}
+                />
+              ))}
             </div>
+          </div>
+          <div className="flex justify-end absolute bottom-2 right-4">
+            <Button
+              type="submit"
+              variant="primary"
+            >
+              Book
+            </Button>
           </div>
         </div>
       </form>

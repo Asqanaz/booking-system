@@ -10,7 +10,6 @@ const professionalSlice = createSlice({
   reducers: {
     createProfessional(state, action) {
       const { payload } = action
-      console.log("payload", payload)
 
       const body = {
         id: new Date().toISOString(),
@@ -59,7 +58,6 @@ const professionalSlice = createSlice({
     }
   },
 
-  extraReducers: {}
 })
 
 export const { editProfessional, createProfessional, deleteProfessional } =
