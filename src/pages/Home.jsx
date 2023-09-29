@@ -26,13 +26,13 @@ export default function Home() {
   const professionals = useSelector(state => state.professionals)
   const availableHours = useSelector(state => state["available-hours"])
 
-  const service = watch("service")
-  const professional = watch("professional")
+  const serviceValue = watch("service")
+  const professionalValue = watch("professional")
 
   useEffect(() => {
     setAvailableProfessionals(
       services
-        .find(serv => serv.id === service)
+        .find(serv => serv.id === serviceValue)
         ?.professionalsIds?.map(id =>
           professionals.find(prof => prof.id === id)
         )
@@ -40,14 +40,14 @@ export default function Home() {
 
     setAvailableProfessionalsHours(
       professionals
-        .find(prof => prof.id === professional)
+        .find(prof => prof.id === professionalValue)
         ?.availableHoursIds?.map(id => availableHours.find(av => av.id === id))
     )
-  }, [service, professional])
+  }, [serviceValue, professionalValue])
 
   useEffect(() => {
     setValue("professional", "none")
-  }, [service])
+  }, [serviceValue])
 
   const onSubmit = data => {
     console.log(data)
