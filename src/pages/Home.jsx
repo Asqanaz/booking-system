@@ -52,11 +52,6 @@ export default function Home() {
     }
   }, [serviceValue, professionalValue, availableHours, professionals, services])
 
-  console.log(
-    professionals
-      .find(prof => prof.id === professionalValue)
-      ?.availableHoursIds?.map(id => availableHours?.find(av => av.id === id))
-  )
 
   useEffect(() => {
     setValue("professional", "none")
