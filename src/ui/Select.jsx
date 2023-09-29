@@ -22,6 +22,7 @@ export default function Select({
       <div className="mt-2">
         <select
           id={id}
+          disabled = {disabled}
           autoComplete={id}
           {...register(id, validationSchema)}
           className={clsx(

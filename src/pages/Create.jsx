@@ -8,9 +8,9 @@ import { useDispatch } from "react-redux"
 // import { createItem, getItem } from "../actions/actions"
 import Select from "../ui/Select"
 import { getItem } from "../utils/getItem"
-import { createService } from "../actions/services"
-import { createProfessional } from "../actions/professionals"
-import { createAvailableHours } from "../actions/availableHours"
+import { createService } from "../store/slices/serviceSlice"
+import { createProfessional } from "../store/slices/professionalSlice"
+import { createAvailableHour } from "../store/slices/availableHoursSlice"
 
 export default function Create() {
   const { category } = useParams()
@@ -21,7 +21,8 @@ export default function Create() {
   const {
     formState: { errors },
     handleSubmit,
-    register
+    register,
+    reset
   } = useForm({
     mode: "onSubmit",
     reValidateMode: "onSubmit"
@@ -30,19 +31,19 @@ export default function Create() {
   const fields = Object.entries(fieldTypes[category])
 
   const onSubmit = data => {
-    
-    if(category === 'services') {
-      createService(data)
+    if (category === "services") {
+      dispatch(createService(data))
     }
 
-    if(category === 'professionals') {
-      createProfessional(data)
+    if (category === "professionals") {
+      dispatch(createProfessional(data))
     }
 
-    if(category === 'available-hours') {
-      createAvailableHours({id: new Date().toISOString(), ...data})
+    if (category === "available-hours") {
+      dispatch(createAvailableHour({ id: new Date().toISOString(), ...data }))
     }
-    
+
+    reset()
   }
 
   const services = getItem("services")

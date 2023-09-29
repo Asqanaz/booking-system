@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { AVAILABLE_HOURS, PROFESSIONALS, SERVICES } from "../../utils/constants"
+import { getItem } from "../../utils/getItem"
 
-const initialState = JSON.parse(localStorage.getItem("services")) || []
+const initialState = JSON.parse(localStorage.getItem(SERVICES)) || []
 
 const serviceSlice = createSlice({
   name: "service",
@@ -11,29 +13,62 @@ const serviceSlice = createSlice({
 
       const body = {
         id: new Date().toISOString(),
-        ...payload
+        ...payload,
+        professionalsIds: []
       }
-      state.push(body)
-      localStorage.setItem("services", JSON.stringify(state))
+
+      if(!state.find(s => s.name === payload.name)) {
+        state.push(body)
+        localStorage.setItem(SERVICES, JSON.stringify(state))
+
+      }
+
 
       return state
     },
-    editServices(state, action) {
+    editService(state, action) {
       const { payload } = action
 
-      const item = state.find(service => service.id === payload.id)
-      const itemId = state.indexOf(item)
-      state[itemId] = payload
-      localStorage.setItem("services", JSON.stringify(state))
+      const newState = state.map(s =>
+        s.id === payload.id ? { ...s, ...payload } : { ...s }
+      )
+      localStorage.setItem(SERVICES, JSON.stringify(newState))
 
       return state
     },
     deleteService(state, action) {
       const { payload } = action
 
-      const filteredState = state.filter(service => service.id !== payload.id)
+      const filteredState = state.filter(service => service.id !== payload)
+      localStorage.setItem(SERVICES, JSON.stringify(filteredState))
 
-      localStorage.setItem("services", JSON.stringify(filteredState))
+      const availableHours = getItem(AVAILABLE_HOURS)
+      const filteredAvailableHour = availableHours.filter(
+        av => av.service !== payload
+      )
+      localStorage.setItem(
+        AVAILABLE_HOURS,
+        JSON.stringify(filteredAvailableHour)
+      )
+
+      const professionals = getItem(PROFESSIONALS)
+      const deletedAvailableHours = availableHours.find(
+        av => av.service === payload
+      )
+      const filteredAvailableHoursIds = professionals?.map(prof =>
+        prof.id === deletedAvailableHours?.professional
+          ? {
+              ...prof,
+              availableHoursIds: prof.availableHoursIds.filter(
+                avIds => deletedAvailableHours.id !== avIds
+              )
+            }
+          : { ...prof }
+      )
+
+      localStorage.setItem(PROFESSIONALS, JSON.stringify(filteredAvailableHoursIds))
+
+      console.log(filteredAvailableHour)
 
       return filteredState
     }
@@ -41,6 +76,7 @@ const serviceSlice = createSlice({
   extraReducers: {}
 })
 
-export const { editServices, createService, deleteService } = serviceSlice.actions
+export const { editService, createService, deleteService } =
+  serviceSlice.actions
 
 export default serviceSlice.reducer

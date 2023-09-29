@@ -4,11 +4,14 @@ import Button from "../ui/Button"
 import { defineTheField } from "../utils/defineTheField"
 import Card from "../components/Card"
 import { getItem } from "../utils/getItem"
+import { useSelector } from "react-redux"
 
 export default function AdminPage() {
   const { category } = useParams()
 
-  const items = getItem(category)
+  const items = useSelector((state) => state[category])
+
+  console.log(items)
   return (
     <div className="py-20">
       <div className="max-w-3xl flex flex-col gap-y-4">

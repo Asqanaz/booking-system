@@ -6,6 +6,10 @@ import { Input } from "../../ui/Input"
 import Button from "../../ui/Button"
 import Select from "../../ui/Select"
 import { getItem } from "../../utils/getItem"
+import { AVAILABLE_HOURS, PROFESSIONALS, SERVICES } from "../../utils/constants"
+import { editProfessional } from "../../store/slices/professionalSlice"
+import { useDispatch, useSelector } from "react-redux"
+import { editService } from "../../store/slices/serviceSlice"
 
 export default function ViewDetails() {
   const { category, id } = useParams()
@@ -14,7 +18,11 @@ export default function ViewDetails() {
 
   const fields = Object.entries(fieldTypes[category])
 
-  const data = getItem(category)?.find(d => d.id === id)
+  const items = useSelector(state => state[category])
+
+  const data = items.find(d => d.id === id)
+
+  const dispatch = useDispatch()
 
   const services = getItem("services")
   const professionals = getItem("professionals")
@@ -29,30 +37,24 @@ export default function ViewDetails() {
     defaultValues:
       category === "available-hours"
         ? {
-            service: data.service.id,
-            professional: data.professional.id,
+            service: data.service,
+            professional: data.professional,
             start: data.start
           }
         : data
   })
 
-  console.log(data)
-
-  // console.log({
-  //   service: data.service.id,
-  //   professional: data.professional.id,
-  //   start: data.start
-  // })
-
-  console.log(id)
   const onSubmit = body => {
-    // updateItem(category, { id, ...body })
-    
+    if (category === SERVICES) {
+      dispatch(editService({ id, ...body }))
+    }
+
+    if (category === PROFESSIONALS) {
+      dispatch(editProfessional({ id, ...body }))
+    }
+
   }
 
-  console.log('alo'.slice(0, -1))
-
-  console.log("errors", errors)
   return (
     <div className="py-20">
       <form
@@ -61,26 +63,18 @@ export default function ViewDetails() {
       >
         {fields.map(([key, value]) => {
           if (value === "select") {
-            // return <select {...register(key)} >
-            //     {console.log(key)}
-            //   {key === "service"
-            //     ? (services.map(service => <option>{service.name}</option>) || <option disabled>No available Service</option>)
-            //     : (professionals.map(prof => <option>{prof.name}</option>) || <option selected disabled>No available professionals</option>)}
-            // </select>
-            // {console.log(data[key].name)}
             return (
               <Select
                 label={key[0].toUpperCase() + key.slice(1)}
                 id={key}
                 register={register}
-                defaultValue={
-                  key === "service" ? data.service.id : data.professional.id
-                }
+                defaultValue={data[key]}
                 errors={errors}
                 data={key === "service" ? services : professionals}
                 validationSchema={{
                   required: true
                 }}
+                disabled={category === AVAILABLE_HOURS}
               />
             )
           }
@@ -90,6 +84,7 @@ export default function ViewDetails() {
               register={register}
               label={key[0].toUpperCase() + key.slice(1)}
               type={value}
+              disabled={category === AVAILABLE_HOURS}
               validationSchema={{
                 required: true,
                 min: {
@@ -106,12 +101,14 @@ export default function ViewDetails() {
             />
           )
         })}
-        <Button
-          type="submit"
-          variant={"primary"}
-        >
-          Edit
-        </Button>
+        {category !== AVAILABLE_HOURS && (
+          <Button
+            type="submit"
+            variant={"primary"}
+          >
+            Edit
+          </Button>
+        )}
         <Button
           type="button"
           variant={"primary"}
