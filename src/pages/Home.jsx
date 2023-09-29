@@ -5,6 +5,7 @@ import Radio from "../ui/Radio"
 import Button from "../ui/Button"
 import { deleteAvailableHour } from "../store/slices/availableHoursSlice"
 import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
 
 export default function Home() {
   const {
@@ -26,6 +27,8 @@ export default function Home() {
   const professionals = useSelector(state => state.professionals)
   const availableHours = useSelector(state => state["available-hours"])
 
+  const navigate = useNavigate()
+
   const serviceValue = watch("service")
   const professionalValue = watch("professional")
 
@@ -34,25 +37,34 @@ export default function Home() {
       services
         .find(serv => serv.id === serviceValue)
         ?.professionalsIds?.map(id =>
-          professionals.find(prof => prof.id === id)
+          professionals?.find(prof => prof.id === id)
         )
     )
 
-    setAvailableProfessionalsHours(
-      professionals
-        .find(prof => prof.id === professionalValue)
-        ?.availableHoursIds?.map(id => availableHours.find(av => av.id === id))
-    )
-  }, [serviceValue, professionalValue])
+    if (serviceValue && professionalValue) {
+      setAvailableProfessionalsHours(prev =>
+        professionals
+          .find(prof => prof.id === professionalValue)
+          ?.availableHoursIds?.map(id =>
+            availableHours?.find(av => av.id === id)
+          )
+      )
+    }
+  }, [serviceValue, professionalValue, availableHours, professionals, services])
+
+  console.log(
+    professionals
+      .find(prof => prof.id === professionalValue)
+      ?.availableHoursIds?.map(id => availableHours?.find(av => av.id === id))
+  )
 
   useEffect(() => {
     setValue("professional", "none")
   }, [serviceValue])
 
   const onSubmit = data => {
-    console.log(data)
-
     dispatch(deleteAvailableHour(data.start))
+    navigate(0)
 
     reset()
   }
@@ -85,14 +97,20 @@ export default function Home() {
           <div className="block text-sm font-medium leading-6 text-gray-900">
             <span>Available Hours</span>
             <div className="mt-2 flex gap-3">
-              {availableProfessionalsHours?.map(hours => (
-                <Radio
-                  key={hours.id}
-                  label={hours.start}
-                  value={hours.id}
-                  register={register}
-                />
-              ))}
+              {availableProfessionalsHours?.length ? (
+                availableProfessionalsHours.map(hours => {
+                  return (
+                    <Radio
+                      key={hours.id}
+                      label={hours.start}
+                      value={hours.id}
+                      register={register}
+                    />
+                  )
+                })
+              ) : (
+                <h2>No available hours</h2>
+              )}
             </div>
           </div>
           <div className="flex justify-end absolute bottom-2 right-4">

@@ -80,7 +80,6 @@ const availableHoursSlice = createSlice({
         ...prof,
         availableHoursIds: prof.availableHoursIds.filter(av => av !== payload)
       }))
-
       localStorage.setItem(
         PROFESSIONALS,
         JSON.stringify(updatedAvailableHoursIds)

@@ -66,7 +66,6 @@ const serviceSlice = createSlice({
 
       localStorage.setItem(PROFESSIONALS, JSON.stringify(filteredAvailableHoursIds))
 
-      console.log(filteredAvailableHour)
 
       return filteredState
     }
