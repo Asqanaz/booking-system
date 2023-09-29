@@ -42,7 +42,7 @@ export default function Home() {
     )
 
     if (serviceValue && professionalValue) {
-      setAvailableProfessionalsHours(prev =>
+      setAvailableProfessionalsHours(
         professionals
           .find(prof => prof.id === professionalValue)
           ?.availableHoursIds?.map(id =>
@@ -51,7 +51,6 @@ export default function Home() {
       )
     }
   }, [serviceValue, professionalValue, availableHours, professionals, services])
-
 
   useEffect(() => {
     setValue("professional", "none")
@@ -93,16 +92,14 @@ export default function Home() {
             <span>Available Hours</span>
             <div className="mt-2 flex gap-3">
               {availableProfessionalsHours?.length ? (
-                availableProfessionalsHours.map(hours => {
-                  return (
-                    <Radio
-                      key={hours.id}
-                      label={hours.start}
-                      value={hours.id}
-                      register={register}
-                    />
-                  )
-                })
+                availableProfessionalsHours.map(hours => (
+                  <Radio
+                    key={hours.id}
+                    label={hours.start}
+                    value={hours.id}
+                    register={register}
+                  />
+                ))
               ) : (
                 <h2>No available hours</h2>
               )}
